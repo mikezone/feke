@@ -8,6 +8,9 @@ from argparse import ArgumentParser, HelpFormatter, RawTextHelpFormatter
 from io import TextIOBase
 from importlib import import_module
 from django.core.management.utils import handle_extensions
+from django.template import Context, Engine
+import shutil
+import feke
 # import django
 # from django.core import checks
 # from django.core.exceptions import ImproperlyConfigured
@@ -615,14 +618,15 @@ class TemplateCommand(BaseCommand):
         camel_case_name = 'camel_case_%s_name' % app_or_project
         camel_case_value = ''.join(x for x in name.title() if x != '_')
 
-        # context = Context({
-        #     **options,
-        #     base_name: name,
-        #     base_directory: top_dir,
-        #     camel_case_name: camel_case_value,
-        #     'docs_version': get_docs_version(),
-        #     'django_version': django.__version__,
-        # }, autoescape=False)
+        context = Context({
+            **options,
+            base_name: name,
+            base_directory: top_dir,
+            camel_case_name: camel_case_value,
+            # 'docs_version': get_docs_version(),
+            'docs_version': '0.0.1',
+            'django_version': feke.get_version(),
+        }, autoescape=False)
 
         # Setup a stub settings environment for template rendering
         # if not settings.configured:
@@ -691,7 +695,7 @@ class TemplateCommand(BaseCommand):
             # if self.verbosity >= 2:
             #     self.stdout.write("Cleaning up temporary files.\n")
             for path_to_remove in self.paths_to_remove:
-                if path.isfile(path_to_remove):
+                if os.path.isfile(path_to_remove):
                     os.remove(path_to_remove)
                 else:
                     shutil.rmtree(path_to_remove)
@@ -703,20 +707,20 @@ class TemplateCommand(BaseCommand):
         directory isn't known.
         """
         if template is None:
-            return path.join(feke.core.__path__[0], 'conf', subdir)
+            return os.path.join(feke.core.__path__[0], 'conf', subdir)
         else:
             if template.startswith('file://'):
                 template = template[7:]
-            expanded_template = path.expanduser(template)
-            expanded_template = path.normpath(expanded_template)
-            if path.isdir(expanded_template):
+            expanded_template = os.path.expanduser(template)
+            expanded_template = os.path.normpath(expanded_template)
+            if os.path.isdir(expanded_template):
                 return expanded_template
             if self.is_url(template):
                 # downloads the file and returns the path
                 absolute_path = self.download(template)
             else:
-                absolute_path = path.abspath(expanded_template)
-            if path.exists(absolute_path):
+                absolute_path = os.path.abspath(expanded_template)
+            if os.path.exists(absolute_path):
                 return self.extract(absolute_path)
 
         raise CommandError("couldn't handle %s template %s." %
@@ -776,7 +780,7 @@ class TemplateCommand(BaseCommand):
         # if self.verbosity >= 2:
         #     self.stdout.write("Downloading %s\n" % display_url)
         try:
-            the_path, info = urlretrieve(url, path.join(tempdir, filename))
+            the_path, info = urlretrieve(url, os.path.join(tempdir, filename))
         except IOError as e:
             raise CommandError("couldn't download URL %s to %s: %s" %
                                (url, filename, e))
@@ -802,7 +806,7 @@ class TemplateCommand(BaseCommand):
         # Move the temporary file to a filename that has better
         # chances of being recognized by the archive utils
         if used_name != guessed_filename:
-            guessed_path = path.join(tempdir, guessed_filename)
+            guessed_path = os.path.join(tempdir, guessed_filename)
             shutil.move(the_path, guessed_path)
             return guessed_path
 
