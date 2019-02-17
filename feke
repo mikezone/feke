@@ -1,0 +1,15 @@
+#!/Users/mike/.pyenv/versions/3.6.5/envs/feke/bin/python
+
+# -*- coding: utf-8 -*-
+import re
+import sys
+import os
+
+if 'feke' not in sys.path:
+    sys.path.append('/Users/mike/Documents/hexo_dir/feke_framework')
+#os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'web.settings')
+from feke.core.management import execute_from_command_line
+
+if __name__ == '__main__':
+    sys.argv[0] = re.sub(r'(-script\.pyw?|\.exe)?$', '', sys.argv[0])
+    sys.exit(execute_from_command_line())
