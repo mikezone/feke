@@ -14,6 +14,7 @@ if __name__ == '__main__':
     sys.argv[0] = re.sub(r'(-script\.pyw?|\.exe)?$', '', sys.argv[0])
     sys.exit(execute_from_command_line())
 
+
 # WSGIRequestHandler 的 handle 方法处理请求，application由self.server.get_app()传递
 # WSGIServer 保留着wsgi application，当有请求时通过get_app()传递给 Handler
 # WSGIServer 每次来请求之后创建新的handler,但是什么时候调用了handler的handle方法？？
